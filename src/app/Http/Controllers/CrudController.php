@@ -2,6 +2,7 @@
 
 namespace Backpack\CRUD\app\Http\Controllers;
 
+use Backpack\CRUD\app\Library\CrudPanel\OperationRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -39,8 +40,7 @@ class CrudController extends Controller
 
             $this->setupDefaults();
             $this->setup();
-            $this->setupConfigurationForCurrentOperation();
-
+            $this->setupControllerOperations();
             return $next($request);
         });
     }
@@ -66,8 +66,35 @@ class CrudController extends Controller
 
         if (count($matches[1])) {
             foreach ($matches[1] as $methodName) {
-                $this->{'setup'.$methodName.'Routes'}($segment, $routeName, $controller);
+                $operations = $this->{'setup'.$methodName.'Routes'}($segment, $routeName, $controller);
+                if(!empty($operations)) {
+                    app('OperationRepository')->add(get_class($this), $operations);
+                }
             }
+        }
+    }
+
+    /**
+     * Load routes for all operations.
+     * Allow developers to load extra routes by creating a method that looks like setupOperationNameRoutes.
+     *
+     * @param  string  $segment  Name of the current entity (singular).
+     * @param  string  $routeName  Route name prefix (ends with .).
+     * @param  string  $controller  Name of the current controller.
+     */
+    public function setupControllerOperations()
+    {
+        $controllerOperations = app('OperationRepository')->getControllerOperations(get_class($this));
+        if(!empty($controllerOperations)) {
+            $currentOperation = $this->crud->getCurrentOperation();
+            foreach($controllerOperations as $operation) {
+                $this->crud->setOperation($operation);
+                $methodSignature = 'setup'.Str::studly($operation).'Operation';
+                if(method_exists($this, $methodSignature)) {
+                    $this->{$methodSignature}();
+                }
+            }
+            $this->crud->setOperation($currentOperation);
         }
     }
 

@@ -8,6 +8,8 @@ use Backpack\CRUD\app\Library\Database\DatabaseSchema;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
+use Backpack\CRUD\app\Library\CrudPanel\OperationRoutes;
+use Backpack\CRUD\app\Library\CrudPanel\OperationRepository;
 
 class BackpackServiceProvider extends ServiceProvider
 {
@@ -71,6 +73,10 @@ class BackpackServiceProvider extends ServiceProvider
 
         $this->app->scoped('DatabaseSchema', function ($app) {
             return new DatabaseSchema();
+        });
+
+        $this->app->scoped('OperationRepository', function ($app) {
+            return new OperationRepository();
         });
 
         $this->app->singleton('BackpackViewNamespaces', function ($app) {
@@ -291,6 +297,6 @@ class BackpackServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['crud', 'widgets', 'BackpackViewNamespaces', 'DatabaseSchema'];
+        return ['crud', 'widgets', 'BackpackViewNamespaces', 'DatabaseSchema', 'OperationRepository'];
     }
 }

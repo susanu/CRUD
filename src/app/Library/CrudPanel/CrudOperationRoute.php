@@ -1,9 +1,11 @@
 <?php
+
 namespace Backpack\CRUD\app\Library\CrudPanel;
 
 final class CrudOperationRoute
 {
-    public function __construct(private string $verb = 'GET', private string $route = '/', private array $configuration = []) { 
+    public function __construct(private string $verb = 'GET', private string $route = '/', private array $configuration = [])
+    {
     }
 
     public function getOperation()

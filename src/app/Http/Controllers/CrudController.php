@@ -2,7 +2,6 @@
 
 namespace Backpack\CRUD\app\Http\Controllers;
 
-use Backpack\CRUD\app\Library\CrudPanel\OperationRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -41,6 +40,7 @@ class CrudController extends Controller
             $this->setupDefaults();
             $this->setup();
             $this->setupControllerOperations();
+
             return $next($request);
         });
     }
@@ -67,7 +67,7 @@ class CrudController extends Controller
         if (count($matches[1])) {
             foreach ($matches[1] as $methodName) {
                 $operations = $this->{'setup'.$methodName.'Routes'}($segment, $routeName, $controller);
-                if(!empty($operations)) {
+                if (! empty($operations)) {
                     app('OperationRepository')->add(get_class($this), $operations);
                 }
             }
@@ -85,12 +85,12 @@ class CrudController extends Controller
     public function setupControllerOperations()
     {
         $controllerOperations = app('OperationRepository')->getControllerOperations(get_class($this));
-        if(!empty($controllerOperations)) {
+        if (! empty($controllerOperations)) {
             $currentOperation = $this->crud->getCurrentOperation();
-            foreach($controllerOperations as $operation) {
+            foreach ($controllerOperations as $operation) {
                 $this->crud->setOperation($operation);
                 $methodSignature = 'setup'.Str::studly($operation).'Operation';
-                if(method_exists($this, $methodSignature)) {
+                if (method_exists($this, $methodSignature)) {
                     $this->{$methodSignature}();
                 }
             }

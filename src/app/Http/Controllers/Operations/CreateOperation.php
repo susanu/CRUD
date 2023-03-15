@@ -16,7 +16,6 @@ trait CreateOperation
      */
     protected function setupCreateRoutes($segment, $routeName, $controller)
     {
-        
         return OperationRoutes::register([
             new CrudOperationRoute('get', $segment.'/create', [
                 'as'        => $routeName.'.create',

@@ -39,7 +39,8 @@ class CrudController extends Controller
 
             $this->setupDefaults();
             $this->setup();
-            $this->setupControllerOperations();
+            $this->setupControllerOperationsExceptCurrent();
+            $this->setupConfigurationForCurrentOperation();
 
             return $next($request);
         });
@@ -82,16 +83,18 @@ class CrudController extends Controller
      * @param  string  $routeName  Route name prefix (ends with .).
      * @param  string  $controller  Name of the current controller.
      */
-    public function setupControllerOperations()
+    public function setupControllerOperationsExceptCurrent()
     {
         $controllerOperations = app('OperationRepository')->getControllerOperations(get_class($this));
         if (! empty($controllerOperations)) {
             $currentOperation = $this->crud->getCurrentOperation();
             foreach ($controllerOperations as $operation) {
-                $this->crud->setOperation($operation);
-                $methodSignature = 'setup'.Str::studly($operation).'Operation';
-                if (method_exists($this, $methodSignature)) {
-                    $this->{$methodSignature}();
+                if ($operation !== $currentOperation) {
+                    $this->crud->setOperation($operation);
+                    $methodSignature = 'setup'.Str::studly($operation).'Operation';
+                    if (method_exists($this, $methodSignature)) {
+                        $this->{$methodSignature}();
+                    }
                 }
             }
             $this->crud->setOperation($currentOperation);

@@ -54,6 +54,17 @@ if (! CrudField::hasMacro('withFiles')) {
     });
 }
 
+if (! CrudField::hasMacro('disableAutofill')) {
+    CrudField::macro('disableAutofill', function () {
+        /** @var CrudField $this */
+
+        return $this->attributes([
+            'readonly' => true,
+            'onfocus' => "this.removeAttribute('readonly');"
+        ]);
+    });
+}
+
 if (! CrudColumn::hasMacro('linkTo')) {
     CrudColumn::macro('linkTo', function (string|array|Closure $routeOrConfiguration, ?array $parameters = []): static {
         $wrapper = $this->attributes['wrapper'] ?? [];
